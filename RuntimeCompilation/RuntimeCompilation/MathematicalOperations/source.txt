@@ -1,0 +1,13 @@
+﻿using System;
+using RuntimeCompilation.MathematicalOperations;
+            
+namespace DynamicOperations
+{         
+    public class Multiply : IMathematicalOperation
+    {
+        public int Execute(int firstOperand, int secondOperand)
+        {
+            return firstOperand * secondOperand;
+        }
+    }
+}

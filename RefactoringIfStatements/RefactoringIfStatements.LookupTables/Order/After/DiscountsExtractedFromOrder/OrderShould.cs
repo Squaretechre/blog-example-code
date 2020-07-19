@@ -8,11 +8,11 @@ namespace RefactoringIfStatements.LookupTables.Order.After.DiscountsExtractedFro
     {
         private readonly Dictionary<CustomerStatus, Func<Money, Money>> _discounts = new Dictionary<CustomerStatus, Func<Money, Money>>
         {
-            { CustomerStatus.General, (total) => total* 0.00m },
-            { CustomerStatus.Bronze, (total) => total* 0.05m },
-            { CustomerStatus.Silver, (total) => total* 0.10m },
-            { CustomerStatus.Gold, (total) => total* 0.15m },
-            { CustomerStatus.Platinum, (total) => total* 0.20m },
+            { CustomerStatus.General, (total) => total * 0.00m },
+            { CustomerStatus.Bronze, (total) => total * 0.05m },
+            { CustomerStatus.Silver, (total) => total * 0.10m },
+            { CustomerStatus.Gold, (total) => total * 0.15m },
+            { CustomerStatus.Platinum, (total) => total * 0.20m },
         };
 
         [Fact]
