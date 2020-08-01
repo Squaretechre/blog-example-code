@@ -4,22 +4,36 @@ namespace RefactoringIfStatements.Polymorphism.Before
 {
     public class LoyaltyUtil
     {
-        public static Money CalculateLoyaltyDiscount(Money orderTotal, Money nonPromotionalItemSpend, Money promotionalItemSpend, DateTime signUpDate, DateTime lastPurchase)
+        public static Money CalculateDiscount(Money orderTotal, Money nonPromotionalItemSpend, Money promotionalItemSpend, DateTime signUpDate, DateTime lastPurchase)
         {
             var monthsAsACustomer = MonthDifferenceBetween(signUpDate, DateTime.Now);
             var hoursSinceLastPurchase = HoursDifferenceBetween(lastPurchase, DateTime.Now);
 
             if (monthsAsACustomer >= 24 && nonPromotionalItemSpend >= Money.USD(3000) && promotionalItemSpend >= Money.USD(300) && hoursSinceLastPurchase <= 6)
             {
-                return orderTotal * 0.85m;
+                var discount = orderTotal * 0.85m 
+                               + (nonPromotionalItemSpend * (decimal)(6 - hoursSinceLastPurchase) * 0.00002m)
+                               + (promotionalItemSpend * (decimal)(6 - hoursSinceLastPurchase) * 0.00002m)
+                               + (monthsAsACustomer * 0.001m);
+
+                return Money.USD(Math.Round(discount, 2));
             }
             else if (monthsAsACustomer >= 24 && nonPromotionalItemSpend >= Money.USD(1500) && promotionalItemSpend >= Money.USD(100) && hoursSinceLastPurchase <= 6)
             {
-                return orderTotal * 0.75m;
+                var discount = orderTotal * 0.75m
+                               + (nonPromotionalItemSpend * (decimal) (6 - hoursSinceLastPurchase) * 0.000015m)
+                               + (promotionalItemSpend * (decimal) (6 - hoursSinceLastPurchase) * 0.000015m)
+                               + (monthsAsACustomer * 0.001m);
+
+                return Money.USD(Math.Round(discount, 2));
             }
             else if (monthsAsACustomer >= 24 && nonPromotionalItemSpend >= Money.USD(1000) && promotionalItemSpend >= Money.USD(50) && hoursSinceLastPurchase <= 24)
             {
-                return orderTotal * 0.50m;
+                var discount = orderTotal * 0.50m
+                               + (nonPromotionalItemSpend * (decimal)(24 - hoursSinceLastPurchase) * 0.00001m)
+                               + (monthsAsACustomer * 0.0001m);
+
+                return Money.USD(Math.Round(discount, 2));
             }
             else if (monthsAsACustomer >= 12 && nonPromotionalItemSpend >= Money.USD(1000) && promotionalItemSpend >= Money.USD(50))
             {

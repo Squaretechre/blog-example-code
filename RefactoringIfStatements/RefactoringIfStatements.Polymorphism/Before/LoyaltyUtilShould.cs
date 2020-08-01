@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using Xunit;
 
 namespace RefactoringIfStatements.Polymorphism.Before
@@ -9,8 +10,6 @@ namespace RefactoringIfStatements.Polymorphism.Before
         private readonly DateTime _sixMonthsAgo;
         private readonly DateTime _oneYearAgo;
         private readonly DateTime _twoYearsAgo;
-        private readonly DateTime _sixHoursAgo;
-        private readonly DateTime _twentyFourHoursAgo;
         private readonly DateTime _now;
 
         public LoyaltyUtilShould()
@@ -19,51 +18,85 @@ namespace RefactoringIfStatements.Polymorphism.Before
             _sixMonthsAgo = DateTime.Now.AddMonths(-6);
             _oneYearAgo = DateTime.Now.AddYears(-1);
             _twoYearsAgo = DateTime.Now.AddYears(-2);
-            _sixHoursAgo = DateTime.Now.AddHours(-6);
-            _twentyFourHoursAgo = DateTime.Now.AddHours(-24);
             _now = DateTime.Now;
         }
 
-        [Fact]
-        public void calculate_85_percent_discount_for_vip_customers()
+        public static IEnumerable<object[]> VipCustomerDiscountData =>
+            new List<object[]>
+            {
+                new object[] { DateTime.Now, Money.USD(8.92m) },
+                new object[] { DateTime.Now.AddHours(-1), Money.USD(8.85m) },
+                new object[] { DateTime.Now.AddHours(-2), Money.USD(8.79m) },
+                new object[] { DateTime.Now.AddHours(-3), Money.USD(8.72m) },
+                new object[] { DateTime.Now.AddHours(-4), Money.USD(8.66m) },
+                new object[] { DateTime.Now.AddHours(-5), Money.USD(8.59m) },
+                new object[] { DateTime.Now.AddHours(-6), Money.USD(8.52m) },
+            };
+
+        [Theory]
+        [MemberData(nameof(VipCustomerDiscountData))]
+        public void calculate_base_85_percent_discount_plus_purchase_frequency_and_duration_bonuses_for_vip_customers(DateTime lastPurchase, Money expectedDiscount)
         {
-            var orderTotal = Money.USD(100);
+            var orderTotal = Money.USD(10);
             var nonPromotionalItemSpend = Money.USD(3000);
             var promotionalItemSpend = Money.USD(300);
             var signUpDate = _twoYearsAgo;
-            var lastPurchase = _sixHoursAgo;
 
-            var totalDiscount = LoyaltyUtil.CalculateLoyaltyDiscount(orderTotal, nonPromotionalItemSpend, promotionalItemSpend, signUpDate, lastPurchase);
+            var totalDiscount = LoyaltyUtil.CalculateDiscount(orderTotal, nonPromotionalItemSpend, promotionalItemSpend, signUpDate, lastPurchase);
 
-            Assert.Equal(Money.USD(85), totalDiscount);
+            Assert.Equal(expectedDiscount, totalDiscount);
         }
 
-        [Fact]
-        public void calculate_75_percent_discount_for_diamond_customers()
+        public static IEnumerable<object[]> DiamondCustomerDiscountData =>
+            new List<object[]>
+            {
+                new object[] { DateTime.Now, Money.USD(7.67m) },
+                new object[] { DateTime.Now.AddHours(-1), Money.USD(7.64m) },
+                new object[] { DateTime.Now.AddHours(-2), Money.USD(7.62m) },
+                new object[] { DateTime.Now.AddHours(-3), Money.USD(7.60m) },
+                new object[] { DateTime.Now.AddHours(-4), Money.USD(7.57m) },
+                new object[] { DateTime.Now.AddHours(-5), Money.USD(7.55m) },
+                new object[] { DateTime.Now.AddHours(-6), Money.USD(7.52m) },
+            };
+
+        [Theory]
+        [MemberData(nameof(DiamondCustomerDiscountData))]
+        public void calculate_base_75_percent_discount_plus_purchase_frequency_and_duration_bonuses_for_diamond_customers(DateTime lastPurchase, Money expectedDiscount)
         {
-            var orderTotal = Money.USD(100);
+            var orderTotal = Money.USD(10);
             var nonPromotionalItemSpend = Money.USD(1500);
             var promotionalItemSpend = Money.USD(100);
             var signUpDate = _twoYearsAgo;
-            var lastPurchase = _sixHoursAgo;
 
-            var totalDiscount = LoyaltyUtil.CalculateLoyaltyDiscount(orderTotal, nonPromotionalItemSpend, promotionalItemSpend, signUpDate, lastPurchase);
+            var totalDiscount = LoyaltyUtil.CalculateDiscount(orderTotal, nonPromotionalItemSpend, promotionalItemSpend, signUpDate, lastPurchase);
 
-            Assert.Equal(Money.USD(75), totalDiscount);
+            Assert.Equal(expectedDiscount, totalDiscount);
         }
 
-        [Fact]
-        public void calculate_50_percent_discount_for_platinum_customers()
+        public static IEnumerable<object[]> PlatinumCustomerDiscountData =>
+            new List<object[]>
+            {
+                new object[] { DateTime.Now, Money.USD(5.24m) },
+                new object[] { DateTime.Now.AddHours(-1), Money.USD(5.23m) },
+                new object[] { DateTime.Now.AddHours(-2), Money.USD(5.22m) },
+                new object[] { DateTime.Now.AddHours(-3), Money.USD(5.21m) },
+                new object[] { DateTime.Now.AddHours(-4), Money.USD(5.20m) },
+                new object[] { DateTime.Now.AddHours(-5), Money.USD(5.19m) },
+                new object[] { DateTime.Now.AddHours(-6), Money.USD(5.18m) },
+            };
+
+        [Theory]
+        [MemberData(nameof(PlatinumCustomerDiscountData))]
+        public void calculate_base_50_percent_discount_plus_purchase_frequency_and_duration_bonuses_for_platinum_customers(DateTime lastPurchase, Money expectedDiscount)
         {
-            var orderTotal = Money.USD(100);
+            var orderTotal = Money.USD(10);
             var nonPromotionalItemSpend = Money.USD(1000);
             var promotionalItemSpend = Money.USD(50);
             var signUpDate = _twoYearsAgo;
-            var lastPurchase = _twentyFourHoursAgo;
 
-            var totalDiscount = LoyaltyUtil.CalculateLoyaltyDiscount(orderTotal, nonPromotionalItemSpend, promotionalItemSpend, signUpDate, lastPurchase);
+            var totalDiscount = LoyaltyUtil.CalculateDiscount(orderTotal, nonPromotionalItemSpend, promotionalItemSpend, signUpDate, lastPurchase);
 
-            Assert.Equal(Money.USD(50), totalDiscount);
+            Assert.Equal(expectedDiscount, totalDiscount);
         }
 
         [Fact]
@@ -75,7 +108,7 @@ namespace RefactoringIfStatements.Polymorphism.Before
             var signUpDate = _oneYearAgo;
             var lastPurchase = _now;
 
-            var totalDiscount = LoyaltyUtil.CalculateLoyaltyDiscount(orderTotal, nonPromotionalItemSpend, promotionalItemSpend, signUpDate, lastPurchase);
+            var totalDiscount = LoyaltyUtil.CalculateDiscount(orderTotal, nonPromotionalItemSpend, promotionalItemSpend, signUpDate, lastPurchase);
 
             Assert.Equal(Money.USD(40), totalDiscount);
         }
@@ -89,7 +122,7 @@ namespace RefactoringIfStatements.Polymorphism.Before
             var signUpDate = _oneYearAgo;
             var lastPurchase = _now;
 
-            var totalDiscount = LoyaltyUtil.CalculateLoyaltyDiscount(orderTotal, nonPromotionalItemSpend, promotionalItemSpend, signUpDate, lastPurchase);
+            var totalDiscount = LoyaltyUtil.CalculateDiscount(orderTotal, nonPromotionalItemSpend, promotionalItemSpend, signUpDate, lastPurchase);
 
             Assert.Equal(Money.USD(35), totalDiscount);
         }
@@ -103,7 +136,7 @@ namespace RefactoringIfStatements.Polymorphism.Before
             var signUpDate = _sixMonthsAgo;
             var lastPurchase = _now;
 
-            var totalDiscount = LoyaltyUtil.CalculateLoyaltyDiscount(orderTotal, nonPromotionalItemSpend, promotionalItemSpend, signUpDate, lastPurchase);
+            var totalDiscount = LoyaltyUtil.CalculateDiscount(orderTotal, nonPromotionalItemSpend, promotionalItemSpend, signUpDate, lastPurchase);
 
             Assert.Equal(Money.USD(25), totalDiscount);
         }
@@ -117,7 +150,7 @@ namespace RefactoringIfStatements.Polymorphism.Before
             var signUpDate = _fiveMonthsAgo;
             var lastPurchase = _now;
 
-            var totalDiscount = LoyaltyUtil.CalculateLoyaltyDiscount(orderTotal, nonPromotionalItemSpend, promotionalItemSpend, signUpDate, lastPurchase);
+            var totalDiscount = LoyaltyUtil.CalculateDiscount(orderTotal, nonPromotionalItemSpend, promotionalItemSpend, signUpDate, lastPurchase);
 
             Assert.Equal(Money.USD(0), totalDiscount);
         }
